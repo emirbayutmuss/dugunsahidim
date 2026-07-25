@@ -1,6 +1,6 @@
 import { type ChangeEvent, type DragEvent, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ImagePlus, Loader2, X } from 'lucide-react'
+import { CheckCircle2, ImagePlus, Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { uploadGuestMedia, validateFileClientSide } from '@/lib/upload'
 import { Button } from '@/components/ui/button'
@@ -82,14 +82,38 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
   if (status === 'success') {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-4 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-4 py-2 text-center"
       >
-        <p className="text-foreground">Teşekkürler! Anınız başarıyla yüklendi. 💛</p>
-        <Button variant="outline" onClick={() => setStatus('idle')}>
-          Başka bir tane yükle
-        </Button>
+        <motion.div
+          initial={{ scale: 0.4, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 16, delay: 0.1 }}
+          className="flex justify-center"
+        >
+          <CheckCircle2 className="size-12 text-primary" strokeWidth={1.5} />
+        </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
+          className="text-foreground"
+        >
+          Teşekkürler! Anınız başarıyla yüklendi. 💛
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.4 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="inline-block"
+        >
+          <Button variant="outline" onClick={() => setStatus('idle')}>
+            Başka bir tane yükle
+          </Button>
+        </motion.div>
       </motion.div>
     )
   }
@@ -198,19 +222,24 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
         </div>
       )}
 
-      <Button
-        className="w-full"
-        disabled={!file || !hasConsented || status === 'uploading'}
-        onClick={handleSubmit}
+      <motion.div
+        whileHover={file && hasConsented && status !== 'uploading' ? { scale: 1.02 } : undefined}
+        whileTap={file && hasConsented && status !== 'uploading' ? { scale: 0.98 } : undefined}
       >
-        {status === 'uploading' ? (
-          <>
-            <Loader2 className="size-4 animate-spin" /> Yükleniyor…
-          </>
-        ) : (
-          'Yükle'
-        )}
-      </Button>
+        <Button
+          className="w-full"
+          disabled={!file || !hasConsented || status === 'uploading'}
+          onClick={handleSubmit}
+        >
+          {status === 'uploading' ? (
+            <>
+              <Loader2 className="size-4 animate-spin" /> Yükleniyor…
+            </>
+          ) : (
+            'Yükle'
+          )}
+        </Button>
+      </motion.div>
     </div>
   )
 }

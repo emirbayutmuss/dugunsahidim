@@ -108,21 +108,22 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {uploads.map((upload) => {
+        {uploads.map((upload, index) => {
           const url = urlMap[upload.file_path]
           return (
-            <button
+            <motion.button
               key={upload.id}
               type="button"
               onClick={() => setSelected(upload)}
-              className="group relative aspect-square overflow-hidden rounded-lg bg-muted"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.4), ease: 'easeOut' }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="relative aspect-square overflow-hidden rounded-lg bg-muted shadow-sm"
             >
               {upload.file_type === 'image' && url ? (
-                <img
-                  src={url}
-                  alt=""
-                  className="size-full object-cover transition-transform group-hover:scale-105"
-                />
+                <img src={url} alt="" className="size-full object-cover" />
               ) : upload.file_type === 'video' ? (
                 <div className="flex size-full flex-col items-center justify-center gap-1 text-muted-foreground">
                   <PlayCircle className="size-8" />
@@ -133,7 +134,7 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
                   <ImageOff className="size-6" />
                 </div>
               )}
-            </button>
+            </motion.button>
           )
         })}
       </div>
@@ -148,11 +149,12 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
             onClick={() => setSelected(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              exit={{ scale: 0.95, opacity: 0, transition: { duration: 0.15 } }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               onClick={(event) => event.stopPropagation()}
-              className="relative max-h-[85vh] max-w-2xl overflow-hidden rounded-xl bg-card"
+              className="relative max-h-[85vh] max-w-2xl overflow-hidden rounded-xl bg-card shadow-2xl"
             >
               <button
                 type="button"

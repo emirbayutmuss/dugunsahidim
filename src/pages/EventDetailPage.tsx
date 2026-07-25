@@ -8,6 +8,7 @@ import type { EventRow } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EventGallery } from '@/components/EventGallery'
+import { SiteHeader } from '@/components/SiteHeader'
 
 function formatEventDate(eventDate: string | null): string {
   if (!eventDate) return 'Tarih belirtilmedi'
@@ -73,8 +74,9 @@ export function EventDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-6 py-10">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <div className="mx-auto max-w-4xl px-6 py-10">
         <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
           ← Etkinliklerim
         </Link>

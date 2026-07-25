@@ -15,6 +15,7 @@ import { AuroraBackground } from '@/components/AuroraBackground'
 import { Sparkles } from '@/components/Sparkles'
 import { TextReveal, getTextRevealDuration } from '@/components/TextReveal'
 import { SiteHeader } from '@/components/SiteHeader'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 const HERO_TITLE = 'Düğününüzün Her Anı, Tek Bir Yerde Toplansın'
 const HERO_TITLE_START = 0.2
@@ -93,6 +94,12 @@ function FadeInSection({
 }
 
 export function HomePage() {
+  useDocumentMeta({
+    title: 'Düğün Şahidim - Düğün Anılarınızı QR Kod ile Toplayın',
+    description:
+      'Misafirleriniz uygulama indirmeden, giriş yapmadan QR kodu okutarak fotoğraf ve video yüklesin. Düğün ve etkinlik anılarınızı tek bir galeride güvenle toplayın.',
+  })
+
   const shouldReduceMotion = useReducedMotion()
 
   const titleDuration = shouldReduceMotion
@@ -234,7 +241,12 @@ export function HomePage() {
 
       <section className="px-6 py-16">
         <div className="mx-auto max-w-4xl">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <FadeInSection>
+            <h2 className="text-center font-heading text-2xl text-foreground sm:text-3xl">
+              Öne Çıkan Özellikler
+            </h2>
+          </FadeInSection>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {FEATURES.map((feature, index) => (
               <motion.div
                 key={feature.title}

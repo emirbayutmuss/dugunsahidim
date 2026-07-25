@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 import {
   Accordion,
   AccordionContent,
@@ -52,13 +54,17 @@ const FAQS = [
 ]
 
 export function FaqPage() {
+  useDocumentMeta({
+    title: 'Sıkça Sorulan Sorular - Düğün Şahidim',
+    description:
+      'Düğün Şahidim hakkında güvenlik, KVKK, dosya boyutu limitleri ve misafir yükleme süreciyle ilgili sıkça sorulan soruların yanıtlarını burada bulabilirsiniz.',
+  })
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-2xl px-6 py-10">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Ana sayfa
-        </Link>
+        <Breadcrumb items={[{ label: 'SSS' }]} />
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}

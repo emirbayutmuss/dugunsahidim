@@ -1,14 +1,19 @@
-import { Link } from 'react-router-dom'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function PrivacyPage() {
+  useDocumentMeta({
+    title: 'Gizlilik ve KVKK - Düğün Şahidim',
+    description:
+      "Düğün Şahidim'de hangi kişisel verileri topladığımızı, nasıl sakladığımızı, kimlerle paylaştığımızı ve KVKK kapsamındaki haklarınızı ayrıntılı şekilde öğrenin.",
+  })
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-2xl px-6 py-10">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Ana sayfa
-        </Link>
+        <Breadcrumb items={[{ label: 'Gizlilik' }]} />
         <h1 className="mt-4 font-heading text-3xl text-primary">Gizlilik ve Kişisel Verilerin Korunması</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Düğün Şahidim yeni başlıyor; bu metin, ürünümüz büyüdükçe ayrıntılandırılacak

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { GuestUploadForm } from '@/components/GuestUploadForm'
 import { AuroraBackground } from '@/components/AuroraBackground'
 import { TextReveal } from '@/components/TextReveal'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 interface PublicEventInfo {
   name: string
@@ -27,6 +28,14 @@ export function GuestLandingPage() {
   const { slug } = useParams<{ slug: string }>()
   const [event, setEvent] = useState<PublicEventInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  useDocumentMeta({
+    title: event ? `${event.name} - Düğün Şahidim` : 'Düğün Şahidim',
+    description: event
+      ? `${event.name} için anılarınızı paylaşın — uygulama indirmeden, giriş yapmadan QR kodu okutarak fotoğraf ve video yükleyin.`
+      : 'QR kodu okutarak uygulama indirmeden, giriş yapmadan fotoğraf ve video paylaşın.',
+    ogType: 'article',
+  })
 
   useEffect(() => {
     if (!slug) return

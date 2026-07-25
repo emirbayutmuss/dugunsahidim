@@ -9,6 +9,8 @@ import type { EventRow } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateEventDialog } from '@/components/CreateEventDialog'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 function formatEventDate(eventDate: string | null): string {
   if (!eventDate) return 'Tarih belirtilmedi'
@@ -20,6 +22,12 @@ function formatEventDate(eventDate: string | null): string {
 }
 
 export function DashboardPage() {
+  useDocumentMeta({
+    title: 'Panelim - Düğün Şahidim',
+    description:
+      'Panelinizden etkinliklerinizi yönetin, QR kodlarınızı indirin, misafirlerinizin yüklediği fotoğraf ve videoları görüntüleyip toplu olarak indirin.',
+  })
+
   const [events, setEvents] = useState<EventWithStats[]>([])
   const [thumbnailMap, setThumbnailMap] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(true)
@@ -55,6 +63,7 @@ export function DashboardPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-6 py-10">
+        <Breadcrumb items={[{ label: 'Panelim' }]} />
         <header className="mb-8 flex items-center justify-between">
           <h1 className="font-heading text-3xl text-primary">Etkinliklerim</h1>
           <CreateEventDialog onCreated={handleCreated} />

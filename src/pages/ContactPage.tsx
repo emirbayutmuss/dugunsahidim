@@ -1,8 +1,9 @@
 import { type FormEvent, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle2 } from 'lucide-react'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 import { submitContactMessage } from '@/lib/contact'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +13,12 @@ import { Card, CardContent } from '@/components/ui/card'
 type FormStatus = 'idle' | 'submitting' | 'success'
 
 export function ContactPage() {
+  useDocumentMeta({
+    title: 'İletişim - Düğün Şahidim',
+    description:
+      'Sorularınız, önerileriniz ya da geri bildiriminiz mi var? Düğün Şahidim ekibiyle doğrudan iletişime geçin, size en kısa sürede geri dönüş yapalım.',
+  })
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -40,9 +47,7 @@ export function ContactPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-lg px-6 py-10">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Ana sayfa
-        </Link>
+        <Breadcrumb items={[{ label: 'İletişim' }]} />
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h1 className="mt-4 font-heading text-3xl text-primary">İletişim</h1>

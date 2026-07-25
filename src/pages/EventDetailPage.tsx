@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { QRCodeCanvas } from 'qrcode.react'
@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EventGallery } from '@/components/EventGallery'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 function formatEventDate(eventDate: string | null): string {
   if (!eventDate) return 'Tarih belirtilmedi'
@@ -25,6 +27,13 @@ export function EventDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useDocumentMeta({
+    title: event ? `${event.name} - Düğün Şahidim` : 'Etkinlik - Düğün Şahidim',
+    description: event
+      ? `"${event.name}" etkinliğinin QR kodunu indirin, misafirlerinizin yüklediği fotoğraf ve videoları galeride görüntüleyip toplu olarak indirin.`
+      : 'Etkinliğinizin QR kodunu ve misafir galerisini görüntüleyin.',
+  })
 
   useEffect(() => {
     if (!eventId) return
@@ -77,9 +86,12 @@ export function EventDetailPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-6 py-10">
-        <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Etkinliklerim
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: 'Panelim', to: '/dashboard' },
+            { label: event.name },
+          ]}
+        />
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}

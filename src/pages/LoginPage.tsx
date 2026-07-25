@@ -9,8 +9,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function LoginPage() {
+  useDocumentMeta({
+    title: 'Giriş Yap - Düğün Şahidim',
+    description:
+      'E-posta adresinizle şifresiz giriş bağlantısı alın, etkinliklerinizi tek panelden yönetin ve misafirlerinizin yüklediği fotoğraf ve videoları görüntüleyin.',
+  })
+
   const { session, isLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -44,6 +52,9 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
+      <div className="mx-auto w-full max-w-md px-4 pt-6">
+        <Breadcrumb items={[{ label: 'Giriş Yap' }]} />
+      </div>
       <div className="flex flex-1 items-center justify-center px-4 py-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

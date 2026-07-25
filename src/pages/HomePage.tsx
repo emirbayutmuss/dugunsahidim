@@ -1,35 +1,39 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Camera, QrCode, ShieldCheck, Sparkles, Table2, Zap } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import {
+  Camera,
+  QrCode,
+  ShieldCheck,
+  Sparkles as SparklesIcon,
+  Table2,
+  Zap,
+} from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { AuroraBackground } from '@/components/AuroraBackground'
-import { TextReveal } from '@/components/TextReveal'
+import { Sparkles } from '@/components/Sparkles'
+import { TextReveal, getTextRevealDuration } from '@/components/TextReveal'
 import { SiteHeader } from '@/components/SiteHeader'
-import firstDance from '@/assets/gallery/first-dance.jpg'
-import receptionDance from '@/assets/gallery/reception-dance.jpg'
-import guestsToast from '@/assets/gallery/guests-toast.jpg'
-import kissCheer from '@/assets/gallery/kiss-cheer.jpg'
-import ringsExchange from '@/assets/gallery/rings-exchange.jpg'
-import groupCandid from '@/assets/gallery/group-candid.jpg'
+
+const HERO_TITLE = 'Düğününüzün Her Anı, Tek Bir Yerde Toplansın'
+const HERO_TITLE_START = 0.2
+const HERO_WORD_DELAY = 0.18
+const HERO_WORD_DURATION = 0.7
 
 /**
- * Örnek galeri görselleri — gerçek müşteri fotoğrafı DEĞİL, Unsplash Lisansı ile
- * ücretsiz kullanılabilir, samimi/docu-editorial tarzda stok fotoğraflar (poz
- * verilmiş stüdyo çekimi değil). Yerel olarak indirilip src/assets/gallery/
- * altında saklanıyor — harici CDN'e bağımlılığı ve olası engellenmeyi önlemek
- * için ("Misafirleriniz anları böyle paylaşacak" hissini vermek amacıyla).
- * Krediler (atıf gerekmiyor ama iyi pratik): Bryan Jesus De Los Santos Breton,
- * Fotógrafo Samuel Cruz (x2), Al Elmes, Camila Cordeiro, 150 Billi — unsplash.com.
+ * Örnek galeri görselleri — gerçek müşteri fotoğrafı DEĞİL, Pexels Lisansı ile
+ * ücretsiz kullanılabilir, samimi/candid tarzda stok fotoğraflar (poz verilmiş
+ * stüdyo çekimi değil). Bir kere indirilip public/gallery/ altında saklanıyor
+ * — canlı API'ye her sayfa yüklenişinde bağımlı olmamak ve hotlink kırılma
+ * riskini önlemek için. Fotoğrafçı kredileri: Amar Preciado, Juliano Astc,
+ * Alexander Mass, Tiarra Sorte — pexels.com (atıf gerekmiyor ama iyi pratik).
  */
 const SAMPLE_GALLERY = [
-  { src: firstDance, alt: 'Gelin ve damadın ilk dansı' },
-  { src: receptionDance, alt: 'Düğün pistinde dans eden çift' },
-  { src: guestsToast, alt: 'Misafirlerin kadeh kaldırdığı an' },
-  { src: kissCheer, alt: 'Gelin damat öperken tezahürat eden misafirler' },
-  { src: ringsExchange, alt: 'Alyans takma anı' },
-  { src: groupCandid, alt: 'Gülümseyen misafir grubu' },
+  { src: '/gallery/wedding-reception.jpg', alt: 'Düğün resepsiyonunda misafirler', credit: 'Amar Preciado' },
+  { src: '/gallery/wedding-dance.jpg', alt: 'Mutlu bir çiftin dans anı', credit: 'Juliano Astc' },
+  { src: '/gallery/wedding-toast.jpg', alt: 'Misafirlerin kadeh kaldırdığı an', credit: 'Alexander Mass' },
+  { src: '/gallery/wedding-rings.jpg', alt: 'Alyans takan çiftin elleri', credit: 'Tiarra Sorte' },
 ]
 
 const STEPS = [
@@ -62,7 +66,7 @@ const FEATURES = [
     description: 'Misafir onayı, güvenli dosya doğrulama ve kişisel veri koruması en baştan tasarlandı.',
   },
   {
-    icon: Sparkles,
+    icon: SparklesIcon,
     title: 'Kolay Kullanım',
     description: 'Sen ve misafirlerin için sade, zarif ve kafa karıştırmayan bir deneyim.',
   },
@@ -89,12 +93,25 @@ function FadeInSection({
 }
 
 export function HomePage() {
+  const shouldReduceMotion = useReducedMotion()
+
+  const titleDuration = shouldReduceMotion
+    ? 0
+    : getTextRevealDuration(HERO_TITLE, {
+        delayStart: HERO_TITLE_START,
+        wordDelay: HERO_WORD_DELAY,
+        wordDuration: HERO_WORD_DURATION,
+      })
+  const subheadingDelay = shouldReduceMotion ? 0 : titleDuration + 0.15
+  const ctaDelay = shouldReduceMotion ? 0.1 : subheadingDelay + 0.3
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <section className="relative overflow-hidden px-6 pt-6 pb-28 sm:pt-10">
         <AuroraBackground />
+        <Sparkles count={14} />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <motion.p
             initial={{ opacity: 0, y: 8 }}
@@ -106,13 +123,18 @@ export function HomePage() {
           </motion.p>
 
           <h1 className="mt-5 font-heading text-5xl leading-[1.05] font-medium tracking-tight text-primary sm:text-6xl md:text-7xl">
-            <TextReveal text="Düğününüzün Her Anı, Tek Bir Yerde Toplansın" delayStart={0.15} />
+            <TextReveal
+              text={HERO_TITLE}
+              delayStart={HERO_TITLE_START}
+              wordDelay={HERO_WORD_DELAY}
+              wordDuration={HERO_WORD_DURATION}
+            />
           </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
+            transition={{ duration: 0.5, delay: subheadingDelay }}
             className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
           >
             Misafirleriniz uygulama indirmeden, giriş yapmadan, sadece QR kodu okutarak
@@ -122,7 +144,7 @@ export function HomePage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.05 }}
+            transition={{ duration: 0.5, delay: ctaDelay }}
             className="mt-9 flex justify-center gap-3"
           >
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
@@ -138,34 +160,38 @@ export function HomePage() {
       </section>
 
       <section className="px-6 py-16">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-4xl">
           <FadeInSection>
             <h2 className="text-center font-heading text-2xl text-foreground sm:text-3xl">
               Misafirleriniz anları böyle paylaşacak
             </h2>
           </FadeInSection>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
             {SAMPLE_GALLERY.map((photo, index) => (
               <motion.div
                 key={photo.src}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: index * 0.06 }}
-                whileHover={{ scale: 1.03 }}
-                className={`overflow-hidden rounded-xl shadow-sm ${
-                  index % 2 === 0 ? 'sm:mt-0' : 'sm:mt-6'
-                }`}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="group relative overflow-hidden rounded-2xl shadow-md"
               >
                 <img
                   src={photo.src}
                   alt={photo.alt}
-                  className="aspect-[3/4] size-full object-cover"
+                  width={800}
+                  height={1200}
+                  className="aspect-[4/5] w-full object-cover"
                   loading="lazy"
                 />
+                <span className="absolute right-3 bottom-3 rounded-full bg-black/40 px-2.5 py-1 text-[11px] text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                  Fotoğraf: {photo.credit} / Pexels
+                </span>
               </motion.div>
             ))}
           </div>
+          <p className="mt-4 text-center text-xs text-muted-foreground">Fotoğraflar: Pexels</p>
         </div>
       </section>
 

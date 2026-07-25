@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { SiteHeader } from '@/components/SiteHeader'
 
 export function LoginPage() {
   const { session, isLoading } = useAuth()
@@ -41,52 +42,55 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="w-full max-w-md"
-      >
-        <Card className="border-border/60 shadow-lg">
-          <CardHeader className="space-y-2 text-center">
-            <h1 className="font-heading text-3xl text-primary">Düğün Şahidim</h1>
-            <p className="text-sm text-muted-foreground">
-              Etkinliklerinizi yönetmek için giriş yapın
-            </p>
-          </CardHeader>
-          <CardContent>
-            {isSent ? (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center text-sm text-foreground"
-              >
-                <strong className="text-primary">{email}</strong> adresine bir giriş bağlantısı
-                gönderdik. Gelen kutunuzu kontrol edin.
-              </motion.p>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-posta adresi</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    placeholder="ornek@eposta.com"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    autoComplete="email"
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isSending}>
-                  {isSending ? 'Gönderiliyor…' : 'Giriş bağlantısı gönder'}
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
+    <div className="flex min-h-screen flex-col bg-background">
+      <SiteHeader />
+      <div className="flex flex-1 items-center justify-center px-4 py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="w-full max-w-md"
+        >
+          <Card className="border-border/60 shadow-lg">
+            <CardHeader className="space-y-2 text-center">
+              <h1 className="font-heading text-3xl text-primary">Düğün Şahidim</h1>
+              <p className="text-sm text-muted-foreground">
+                Etkinliklerinizi yönetmek için giriş yapın
+              </p>
+            </CardHeader>
+            <CardContent>
+              {isSent ? (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center text-sm text-foreground"
+                >
+                  <strong className="text-primary">{email}</strong> adresine bir giriş bağlantısı
+                  gönderdik. Gelen kutunuzu kontrol edin.
+                </motion.p>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-posta adresi</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      placeholder="ornek@eposta.com"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      autoComplete="email"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isSending}>
+                    {isSending ? 'Gönderiliyor…' : 'Giriş bağlantısı gönder'}
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   )
 }

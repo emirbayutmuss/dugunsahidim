@@ -19,16 +19,16 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="relative z-20 flex items-center justify-between px-6 py-5">
-      <Link to="/" className="font-heading text-xl text-primary">
+    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border/60 bg-background/85 px-6 py-4 backdrop-blur-md">
+      <Link to="/" className="font-heading text-2xl text-primary">
         Düğün Şahidim
       </Link>
-      <nav className="flex items-center gap-4">
+      <nav className="flex items-center gap-5">
         {NAV_LINKS.map((link) => (
           <Link
             key={link.to}
             to={link.to}
-            className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
+            className="hidden text-sm font-medium text-foreground/80 hover:text-foreground sm:inline"
           >
             {link.label}
           </Link>
@@ -37,7 +37,7 @@ export function SiteHeader() {
         {session ? (
           <>
             {location.pathname !== '/dashboard' && (
-              <Link to="/dashboard" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+              <Link to="/dashboard" className={buttonVariants({ size: 'sm' })}>
                 Panelim
               </Link>
             )}
@@ -46,9 +46,11 @@ export function SiteHeader() {
             </Button>
           </>
         ) : (
-          <Link to="/login" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-            Giriş Yap
-          </Link>
+          location.pathname !== '/login' && (
+            <Link to="/login" className={buttonVariants({ size: 'sm' })}>
+              Giriş Yap
+            </Link>
+          )
         )}
       </nav>
     </header>

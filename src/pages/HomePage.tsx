@@ -83,7 +83,7 @@ function FadeInSection({
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.55, ease: 'easeOut' }}
       className={className}
     >
@@ -166,31 +166,36 @@ export function HomePage() {
               Misafirleriniz anları böyle paylaşacak
             </h2>
           </FadeInSection>
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {SAMPLE_GALLERY.map((photo, index) => (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2"
+          >
+            {SAMPLE_GALLERY.map((photo) => (
               <motion.div
                 key={photo.src}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 className="group relative overflow-hidden rounded-2xl shadow-md"
               >
+                {/* No loading="lazy" here: combined with the parent's scroll-triggered
+                    opacity animation, native lazy-loading was never requesting the
+                    image at all in some browsers — the images just silently never
+                    loaded. Only 4 images in this section, so eager loading is cheap. */}
                 <img
                   src={photo.src}
                   alt={photo.alt}
                   width={800}
                   height={1200}
                   className="aspect-[4/5] w-full object-cover"
-                  loading="lazy"
                 />
                 <span className="absolute right-3 bottom-3 rounded-full bg-black/40 px-2.5 py-1 text-[11px] text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                   Fotoğraf: {photo.credit} / Pexels
                 </span>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
           <p className="mt-4 text-center text-xs text-muted-foreground">Fotoğraflar: Pexels</p>
         </div>
       </section>
@@ -212,7 +217,7 @@ export function HomePage() {
                 key={step.title}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.45, delay: index * 0.15 }}
                 className="relative flex flex-col items-center text-center"
               >
@@ -235,7 +240,7 @@ export function HomePage() {
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.45, delay: index * 0.1 }}
               >
                 <Card className="h-full border-border/60">

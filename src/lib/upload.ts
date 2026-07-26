@@ -1,5 +1,6 @@
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabaseClient'
+import { getVisitorId } from '@/lib/visitor'
 
 export type MediaFamily = 'image' | 'video'
 
@@ -71,7 +72,15 @@ export async function uploadGuestMedia(
 
   const { data: ticket, error: ticketError } = await supabase.functions.invoke<TicketResponse>(
     'create-upload-ticket',
-    { body: { slug, guestName, mimeType: file.type, declaredSize: file.size } },
+    {
+      body: {
+        slug,
+        guestName,
+        mimeType: file.type,
+        declaredSize: file.size,
+        visitorId: getVisitorId(),
+      },
+    },
   )
 
   if (ticketError || !ticket) {

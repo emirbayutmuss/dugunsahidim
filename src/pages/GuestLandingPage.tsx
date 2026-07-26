@@ -9,6 +9,7 @@ import { AuroraBackground } from '@/components/AuroraBackground'
 import { TextReveal } from '@/components/TextReveal'
 import { PageTransition } from '@/components/PageTransition'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
+import { getVisitorId } from '@/lib/visitor'
 
 interface PublicEventInfo {
   name: string
@@ -42,7 +43,7 @@ export function GuestLandingPage() {
     if (!slug) return
 
     supabase.functions
-      .invoke<PublicEventInfo>('resolve-event', { body: { slug } })
+      .invoke<PublicEventInfo>('resolve-event', { body: { slug, visitorId: getVisitorId() } })
       .then(({ data, error }) => {
         if (!error && data) {
           setEvent(data)

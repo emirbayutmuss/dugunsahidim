@@ -5,6 +5,7 @@ import { ALLOWED_MIME_TYPES } from '../_shared/media.ts'
 const jsonHeaders = { ...corsHeaders, 'Content-Type': 'application/json' }
 const BUCKET = 'event-media'
 const SLUG_PATTERN = /^[a-z0-9_-]{8,32}$/
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const GUEST_NAME_MAX_LENGTH = 80
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000
 const RATE_LIMIT_MAX_PER_WINDOW = 15
@@ -46,6 +47,7 @@ interface TicketRequestBody {
   guestName?: unknown
   mimeType?: unknown
   declaredSize?: unknown
+  visitorId?: unknown
 }
 
 Deno.serve(async (req: Request) => {
@@ -60,7 +62,7 @@ Deno.serve(async (req: Request) => {
     return jsonError('Geçersiz istek', 400)
   }
 
-  const { slug, guestName, mimeType, declaredSize } = body
+  const { slug, guestName, mimeType, declaredSize, visitorId } = body
 
   if (typeof slug !== 'string' || !SLUG_PATTERN.test(slug)) {
     return jsonError('Etkinlik bulunamadı', 404)
@@ -140,6 +142,8 @@ Deno.serve(async (req: Request) => {
 
   const uploadId = crypto.randomUUID()
   const path = `${event.id}/${uploadId}.${mediaConfig.extension}`
+  const validVisitorId =
+    typeof visitorId === 'string' && UUID_PATTERN.test(visitorId) ? visitorId : null
 
   const { error: insertError } = await supabaseAdmin.from('uploads').insert({
     id: uploadId,
@@ -150,6 +154,7 @@ Deno.serve(async (req: Request) => {
     mime_type: mimeType,
     declared_file_size: declaredSize,
     status: 'pending',
+    visitor_id: validVisitorId,
   })
 
   if (insertError) {

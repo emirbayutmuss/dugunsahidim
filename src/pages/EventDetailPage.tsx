@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { QRCodeCanvas } from 'qrcode.react'
 import { fetchEventById } from '@/lib/events'
+import { fetchEventAnalytics, type EventAnalytics } from '@/lib/analytics'
 import type { EventRow } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -28,6 +29,7 @@ export function EventDetailPage() {
   const [event, setEvent] = useState<EventRow | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [analytics, setAnalytics] = useState<EventAnalytics | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useDocumentMeta({
@@ -56,6 +58,16 @@ export function EventDetailPage() {
       .finally(() => setIsLoading(false))
   }, [eventId])
 
+  useEffect(() => {
+    if (!eventId) return
+
+    fetchEventAnalytics(eventId)
+      .then(setAnalytics)
+      .catch(() => {
+        // istatistikler tali bir özellik — yüklenemezse sessizce atlanır
+      })
+  }, [eventId])
+
   if (!eventId) {
     return <Navigate to="/dashboard" replace />
   }
@@ -73,6 +85,10 @@ export function EventDetailPage() {
   }
 
   const guestUrl = `${window.location.origin}/e/${event.slug}`
+  const conversionRate =
+    analytics && analytics.viewCount > 0
+      ? Math.round((analytics.conversionCount / analytics.viewCount) * 100)
+      : null
 
   function handleDownload() {
     const canvas = canvasRef.current
@@ -116,6 +132,38 @@ export function EventDetailPage() {
               <Pressable>
                 <Button onClick={handleDownload}>QR Kodu İndir (PNG)</Button>
               </Pressable>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <h2 className="font-heading text-xl text-foreground">İstatistikler</h2>
+            </CardHeader>
+            <CardContent>
+              {!analytics ? (
+                <p className="text-sm text-muted-foreground">Yükleniyor…</p>
+              ) : analytics.viewCount === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Henüz kimse QR kodu okutup sayfayı görüntülemedi.
+                </p>
+              ) : (
+                <div className="flex flex-wrap items-center justify-center gap-8 text-center">
+                  <div>
+                    <p className="font-heading text-3xl text-primary">{analytics.viewCount}</p>
+                    <p className="text-sm text-muted-foreground">Sayfayı gören</p>
+                  </div>
+                  <div>
+                    <p className="font-heading text-3xl text-primary">{analytics.conversionCount}</p>
+                    <p className="text-sm text-muted-foreground">Yükleme yapan</p>
+                  </div>
+                  {conversionRate !== null && (
+                    <div>
+                      <p className="font-heading text-3xl text-primary">%{conversionRate}</p>
+                      <p className="text-sm text-muted-foreground">Dönüşüm oranı</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 

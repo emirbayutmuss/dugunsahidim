@@ -13,6 +13,7 @@ const supabaseAdmin = createClient(
 )
 
 const SLUG_PATTERN = /^[a-z0-9_-]{8,32}$/
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 function notFound(): Response {
   return new Response(JSON.stringify({ error: 'Etkinlik bulunamadı' }), {
@@ -27,8 +28,9 @@ Deno.serve(async (req: Request) => {
   }
 
   let slug: unknown
+  let visitorId: unknown
   try {
-    ;({ slug } = await req.json())
+    ;({ slug, visitorId } = await req.json())
   } catch {
     return new Response(JSON.stringify({ error: 'Geçersiz istek' }), {
       status: 400,
@@ -42,7 +44,7 @@ Deno.serve(async (req: Request) => {
 
   const { data, error } = await supabaseAdmin
     .from('events')
-    .select('name, event_date, status')
+    .select('id, name, event_date, status')
     .eq('slug', slug)
     .maybeSingle()
 
@@ -50,5 +52,21 @@ Deno.serve(async (req: Request) => {
     return notFound()
   }
 
-  return new Response(JSON.stringify(data), { status: 200, headers: jsonHeaders })
+  // Görüntülenme sayacı: best-effort — analytics hiçbir zaman misafir
+  // deneyimini bozmamalı, bu yüzden hata sessizce yutulur.
+  if (typeof visitorId === 'string' && UUID_PATTERN.test(visitorId)) {
+    try {
+      await supabaseAdmin
+        .from('event_page_views')
+        .upsert(
+          { event_id: data.id, visitor_id: visitorId },
+          { onConflict: 'event_id,visitor_id', ignoreDuplicates: true },
+        )
+    } catch {
+      // görüntülenme kaydı başarısız olsa bile etkinlik bilgisini dönmeye devam et
+    }
+  }
+
+  const { id: _id, ...publicEventInfo } = data
+  return new Response(JSON.stringify(publicEventInfo), { status: 200, headers: jsonHeaders })
 })

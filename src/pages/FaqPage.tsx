@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { PageTransition } from '@/components/PageTransition'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 import {
   Accordion,
@@ -61,7 +62,7 @@ export function FaqPage() {
   })
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-2xl px-6 py-10">
         <Breadcrumb items={[{ label: 'SSS' }]} />
@@ -71,8 +72,10 @@ export function FaqPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="mt-4 font-heading text-3xl text-primary">Sıkça Sorulan Sorular</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-primary sm:text-5xl">
+            Sıkça Sorulan Sorular
+          </h1>
+          <p className="mt-3 text-sm text-muted-foreground">
             Aradığınız cevabı bulamadıysanız{' '}
             <Link to="/iletisim" className="text-foreground hover:underline">
               bize yazabilirsiniz
@@ -81,17 +84,24 @@ export function FaqPage() {
           </p>
 
           <Accordion className="mt-8">
-            {FAQS.map((faq) => (
-              <AccordionItem key={faq.question} value={faq.question}>
-                <AccordionTrigger className="font-heading text-base text-foreground">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">{faq.answer}</AccordionContent>
-              </AccordionItem>
+            {FAQS.map((faq, index) => (
+              <motion.div
+                key={faq.question}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 + index * 0.05 }}
+              >
+                <AccordionItem value={faq.question}>
+                  <AccordionTrigger className="font-heading text-base text-foreground">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">{faq.answer}</AccordionContent>
+                </AccordionItem>
+              </motion.div>
             ))}
           </Accordion>
         </motion.div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

@@ -11,6 +11,11 @@ export function AuroraBackground() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       <motion.div
+        className="absolute bottom-[-30%] left-1/2 size-[70vw] -translate-x-1/2 rounded-full bg-deep/[0.07] blur-3xl"
+        animate={shouldReduceMotion ? undefined : { scale: [1, 1.06, 1] }}
+        transition={{ duration: 36, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
         className="absolute -top-1/3 left-[-15%] size-[55vw] rounded-full bg-primary/[0.14] blur-3xl"
         animate={shouldReduceMotion ? undefined : { x: [0, 40, -20, 0], y: [0, 30, -10, 0] }}
         transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}

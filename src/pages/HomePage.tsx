@@ -15,7 +15,15 @@ import { AuroraBackground } from '@/components/AuroraBackground'
 import { Sparkles } from '@/components/Sparkles'
 import { TextReveal, getTextRevealDuration } from '@/components/TextReveal'
 import { SiteHeader } from '@/components/SiteHeader'
+import { PageTransition } from '@/components/PageTransition'
+import { Pressable } from '@/components/Pressable'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
+
+const TRUST_CHIPS = [
+  { icon: ShieldCheck, label: 'KVKK Uyumlu' },
+  { icon: Zap, label: 'Kurulum Gerekmez' },
+  { icon: QrCode, label: 'Anında Paylaşım' },
+]
 
 const HERO_TITLE = 'Düğününüzün Her Anı, Tek Bir Yerde Toplansın'
 const HERO_TITLE_START = 0.2
@@ -113,10 +121,10 @@ export function HomePage() {
   const ctaDelay = shouldReduceMotion ? 0.1 : subheadingDelay + 0.3
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       <SiteHeader />
 
-      <section className="relative overflow-hidden px-6 pt-6 pb-28 sm:pt-10">
+      <section className="relative overflow-hidden px-6 pt-12 pb-32 sm:pt-20 sm:pb-40">
         <AuroraBackground />
         <Sparkles count={14} />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
@@ -124,12 +132,12 @@ export function HomePage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-xs font-medium tracking-widest text-accent-foreground uppercase"
+            className="text-xs font-semibold tracking-[0.2em] text-rose uppercase"
           >
             Düğün & Etkinlik Anı Toplama
           </motion.p>
 
-          <h1 className="mt-5 font-heading text-5xl leading-[1.05] font-medium tracking-tight text-primary sm:text-6xl md:text-7xl">
+          <h1 className="mt-6 font-heading text-6xl leading-[1.02] font-bold tracking-tighter text-primary sm:text-7xl md:text-8xl">
             <TextReveal
               text={HERO_TITLE}
               delayStart={HERO_TITLE_START}
@@ -142,7 +150,7 @@ export function HomePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: subheadingDelay }}
-            className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
+            className="mx-auto mt-7 max-w-xl text-base text-muted-foreground sm:text-lg"
           >
             Misafirleriniz uygulama indirmeden, giriş yapmadan, sadece QR kodu okutarak
             fotoğraf ve video paylaşsın. Siz de tüm anıları tek bir galeride toplayın.
@@ -152,16 +160,35 @@ export function HomePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: ctaDelay }}
-            className="mt-9 flex justify-center gap-3"
+            className="mt-10 flex flex-wrap justify-center gap-3"
           >
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Pressable>
               <Link to="/login" className={buttonVariants({ size: 'lg' })}>
                 Ücretsiz Dene
               </Link>
-            </motion.div>
-            <a href="#nasil-calisir" className={buttonVariants({ size: 'lg', variant: 'ghost' })}>
-              Nasıl Çalışır?
-            </a>
+            </Pressable>
+            <Pressable>
+              <a href="#nasil-calisir" className={buttonVariants({ size: 'lg', variant: 'ghost' })}>
+                Nasıl Çalışır?
+              </a>
+            </Pressable>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: ctaDelay + 0.15 }}
+            className="mx-auto mt-12 flex max-w-lg flex-wrap items-center justify-center gap-2.5"
+          >
+            {TRUST_CHIPS.map((chip) => (
+              <span
+                key={chip.label}
+                className="flex items-center gap-1.5 rounded-full border border-border/60 bg-card/50 px-3.5 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-md"
+              >
+                <chip.icon className="size-3.5 text-primary" />
+                {chip.label}
+              </span>
+            ))}
           </motion.div>
         </div>
       </section>
@@ -169,20 +196,22 @@ export function HomePage() {
       <section className="px-6 py-16">
         <div className="mx-auto max-w-4xl">
           <FadeInSection>
-            <h2 className="text-center font-heading text-2xl text-foreground sm:text-3xl">
+            <h2 className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Misafirleriniz anları böyle paylaşacak
             </h2>
           </FadeInSection>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial="hidden"
+            whileInView="show"
             viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ staggerChildren: 0.12 }}
             className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2"
           >
             {SAMPLE_GALLERY.map((photo) => (
               <motion.div
                 key={photo.src}
+                variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+                transition={{ duration: 0.5 }}
                 whileHover={{ scale: 1.02 }}
                 className="group relative overflow-hidden rounded-2xl shadow-md"
               >
@@ -210,7 +239,7 @@ export function HomePage() {
       <section id="nasil-calisir" className="px-6 py-16">
         <div className="mx-auto max-w-4xl">
           <FadeInSection>
-            <h2 className="text-center font-heading text-2xl text-foreground sm:text-3xl">
+            <h2 className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Nasıl Çalışır
             </h2>
           </FadeInSection>
@@ -231,7 +260,7 @@ export function HomePage() {
                 <div className="relative z-10 flex size-12 items-center justify-center rounded-full border-2 border-primary bg-background text-primary">
                   <step.icon className="size-5" />
                 </div>
-                <h3 className="mt-4 font-heading text-lg text-foreground">{step.title}</h3>
+                <h3 className="mt-4 font-heading text-lg font-semibold text-foreground">{step.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
               </motion.div>
             ))}
@@ -242,7 +271,7 @@ export function HomePage() {
       <section className="px-6 py-16">
         <div className="mx-auto max-w-4xl">
           <FadeInSection>
-            <h2 className="text-center font-heading text-2xl text-foreground sm:text-3xl">
+            <h2 className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Öne Çıkan Özellikler
             </h2>
           </FadeInSection>
@@ -258,7 +287,7 @@ export function HomePage() {
                 <Card className="h-full border-border/60">
                   <CardContent className="flex h-full flex-col items-center gap-2 py-8 text-center">
                     <feature.icon className="size-6 text-primary" />
-                    <h3 className="font-heading text-lg text-foreground">{feature.title}</h3>
+                    <h3 className="font-heading text-lg font-semibold text-foreground">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </CardContent>
                 </Card>
@@ -273,7 +302,7 @@ export function HomePage() {
           <p className="text-xs font-medium tracking-widest text-accent-foreground uppercase">
             Yakında
           </p>
-          <h2 className="mt-3 font-heading text-2xl text-foreground sm:text-3xl">
+          <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Fiyatlandırma
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
@@ -283,28 +312,28 @@ export function HomePage() {
         </FadeInSection>
       </section>
 
-      <footer className="border-t border-border/60 px-6 py-10">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-2 text-center text-sm text-muted-foreground">
-          <span className="font-heading text-base text-primary">Düğün Şahidim</span>
+      <footer className="bg-deep px-6 py-12 text-background/70">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 text-center text-sm">
+          <span className="font-heading text-lg font-semibold text-background">Düğün Şahidim</span>
           <div className="flex items-center gap-4">
-            <Link to="/sss" className="hover:text-foreground hover:underline">
+            <Link to="/sss" className="hover:text-background hover:underline">
               SSS
             </Link>
-            <Link to="/iletisim" className="hover:text-foreground hover:underline">
+            <Link to="/iletisim" className="hover:text-background hover:underline">
               İletişim
             </Link>
-            <Link to="/gizlilik" className="hover:text-foreground hover:underline">
+            <Link to="/gizlilik" className="hover:text-background hover:underline">
               Gizlilik
             </Link>
           </div>
           <p>
             Sorularınız için:{' '}
-            <a href="mailto:merhaba@dugunsahidim.com" className="hover:text-foreground hover:underline">
+            <a href="mailto:merhaba@dugunsahidim.com" className="hover:text-background hover:underline">
               merhaba@dugunsahidim.com
             </a>
           </p>
         </div>
       </footer>
-    </div>
+    </PageTransition>
   )
 }

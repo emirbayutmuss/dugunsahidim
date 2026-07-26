@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { CheckCircle2 } from 'lucide-react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { PageTransition } from '@/components/PageTransition'
+import { Pressable } from '@/components/Pressable'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 import { submitContactMessage } from '@/lib/contact'
 import { Button } from '@/components/ui/button'
@@ -44,13 +46,13 @@ export function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-lg px-6 py-10">
         <Breadcrumb items={[{ label: 'İletişim' }]} />
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="mt-4 font-heading text-3xl text-primary">İletişim</h1>
+          <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-primary sm:text-5xl">İletişim</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Sorunuz, öneriniz ya da geri bildiriminiz mi var? Aşağıdaki formu doldurun, size
             döneceğiz. Doğrudan yazmayı tercih ederseniz:{' '}
@@ -80,9 +82,11 @@ export function ContactPage() {
                     <CheckCircle2 className="size-10 text-primary" strokeWidth={1.5} />
                   </motion.div>
                   <p className="text-foreground">Mesajınız iletildi, teşekkürler!</p>
-                  <Button variant="outline" onClick={() => setStatus('idle')}>
-                    Yeni mesaj gönder
-                  </Button>
+                  <Pressable>
+                    <Button variant="outline" onClick={() => setStatus('idle')}>
+                      Yeni mesaj gönder
+                    </Button>
+                  </Pressable>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -135,9 +139,11 @@ export function ContactPage() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={status === 'submitting'}>
-                    {status === 'submitting' ? 'Gönderiliyor…' : 'Gönder'}
-                  </Button>
+                  <Pressable className="block w-full">
+                    <Button type="submit" className="w-full" disabled={status === 'submitting'}>
+                      {status === 'submitting' ? 'Gönderiliyor…' : 'Gönder'}
+                    </Button>
+                  </Pressable>
 
                   {errorMessage && <p className="text-sm text-destructive">{errorMessage}</p>}
                 </form>
@@ -146,6 +152,6 @@ export function ContactPage() {
           </Card>
         </motion.div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

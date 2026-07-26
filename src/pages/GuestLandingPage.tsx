@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { GuestUploadForm } from '@/components/GuestUploadForm'
 import { AuroraBackground } from '@/components/AuroraBackground'
 import { TextReveal } from '@/components/TextReveal'
+import { PageTransition } from '@/components/PageTransition'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 interface PublicEventInfo {
@@ -51,7 +52,7 @@ export function GuestLandingPage() {
   }, [slug])
 
   return (
-    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-10">
+    <PageTransition className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-10">
       <AuroraBackground />
 
       <motion.div
@@ -84,7 +85,7 @@ export function GuestLandingPage() {
                   <Heart className="size-3.5 fill-accent text-accent" />
                 </motion.div>
 
-                <h1 className="font-heading text-4xl leading-tight text-primary">
+                <h1 className="font-heading text-5xl leading-[1.05] font-bold tracking-tight text-primary">
                   <TextReveal text={event.name} delayStart={0.15} />
                 </h1>
 
@@ -118,6 +119,6 @@ export function GuestLandingPage() {
           )}
         </Card>
       </motion.div>
-    </div>
+    </PageTransition>
   )
 }

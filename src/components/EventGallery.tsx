@@ -10,6 +10,7 @@ import {
 } from '@/lib/gallery'
 import type { UploadRow } from '@/lib/types'
 import { Button } from '@/components/ui/button'
+import { Pressable } from '@/components/Pressable'
 
 interface EventGalleryProps {
   eventId: string
@@ -94,17 +95,19 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{uploads.length} anı</p>
-        <Button variant="outline" onClick={handleZipDownload} disabled={isZipping}>
-          {isZipping ? (
-            <>
-              <Loader2 className="size-4 animate-spin" /> Hazırlanıyor…
-            </>
-          ) : (
-            <>
-              <Download className="size-4" /> Tümünü İndir (ZIP)
-            </>
-          )}
-        </Button>
+        <Pressable>
+          <Button variant="outline" onClick={handleZipDownload} disabled={isZipping}>
+            {isZipping ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Hazırlanıyor…
+              </>
+            ) : (
+              <>
+                <Download className="size-4" /> Tümünü İndir (ZIP)
+              </>
+            )}
+          </Button>
+        </Pressable>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">

@@ -1,5 +1,7 @@
+import { motion } from 'framer-motion'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { PageTransition } from '@/components/PageTransition'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function PrivacyPage() {
@@ -10,12 +12,19 @@ export function PrivacyPage() {
   })
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-2xl px-6 py-10">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mx-auto max-w-2xl px-6 py-10"
+      >
         <Breadcrumb items={[{ label: 'Gizlilik' }]} />
-        <h1 className="mt-4 font-heading text-3xl text-primary">Gizlilik ve Kişisel Verilerin Korunması</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-primary sm:text-5xl">
+          Gizlilik ve Kişisel Verilerin Korunması
+        </h1>
+        <p className="mt-3 text-sm text-muted-foreground">
           Düğün Şahidim yeni başlıyor; bu metin, ürünümüz büyüdükçe ayrıntılandırılacak
           çalışan bir aydınlatma metnidir. Şu an topladığımız verileri ve bunlarla ne
           yaptığımızı olduğu gibi anlatıyoruz.
@@ -104,7 +113,7 @@ export function PrivacyPage() {
             </a>
           </p>
         </section>
-      </div>
-    </div>
+      </motion.div>
+    </PageTransition>
   )
 }

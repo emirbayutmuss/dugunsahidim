@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
@@ -10,19 +11,23 @@ import { EventDetailPage } from '@/pages/EventDetailPage'
 import { GuestLandingPage } from '@/pages/GuestLandingPage'
 
 function App() {
+  const location = useLocation()
+
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/gizlilik" element={<PrivacyPage />} />
-      <Route path="/sss" element={<FaqPage />} />
-      <Route path="/iletisim" element={<ContactPage />} />
-      <Route path="/e/:slug" element={<GuestLandingPage />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/dashboard/e/:eventId" element={<EventDetailPage />} />
-      </Route>
-    </Routes>
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/gizlilik" element={<PrivacyPage />} />
+        <Route path="/sss" element={<FaqPage />} />
+        <Route path="/iletisim" element={<ContactPage />} />
+        <Route path="/e/:slug" element={<GuestLandingPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/e/:eventId" element={<EventDetailPage />} />
+        </Route>
+      </Routes>
+    </AnimatePresence>
   )
 }
 

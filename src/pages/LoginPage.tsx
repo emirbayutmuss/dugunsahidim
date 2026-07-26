@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { PageTransition } from '@/components/PageTransition'
+import { Pressable } from '@/components/Pressable'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 export function LoginPage() {
@@ -50,7 +52,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <PageTransition className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <div className="mx-auto w-full max-w-md px-4 pt-6">
         <Breadcrumb items={[{ label: 'Giriş Yap' }]} />
@@ -64,7 +66,7 @@ export function LoginPage() {
         >
           <Card className="border-border/60 shadow-lg">
             <CardHeader className="space-y-2 text-center">
-              <h1 className="font-heading text-3xl text-primary">Düğün Şahidim</h1>
+              <h1 className="font-heading text-4xl font-bold tracking-tight text-primary">Düğün Şahidim</h1>
               <p className="text-sm text-muted-foreground">
                 Etkinliklerinizi yönetmek için giriş yapın
               </p>
@@ -93,15 +95,17 @@ export function LoginPage() {
                       autoComplete="email"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isSending}>
-                    {isSending ? 'Gönderiliyor…' : 'Giriş bağlantısı gönder'}
-                  </Button>
+                  <Pressable className="block w-full">
+                    <Button type="submit" className="w-full" disabled={isSending}>
+                      {isSending ? 'Gönderiliyor…' : 'Giriş bağlantısı gönder'}
+                    </Button>
+                  </Pressable>
                 </form>
               )}
             </CardContent>
           </Card>
         </motion.div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

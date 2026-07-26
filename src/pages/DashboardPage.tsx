@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { CreateEventDialog } from '@/components/CreateEventDialog'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { PageTransition } from '@/components/PageTransition'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 function formatEventDate(eventDate: string | null): string {
@@ -60,12 +61,12 @@ export function DashboardPage() {
   const totalUploads = events.reduce((sum, event) => sum + event.uploadCount, 0)
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-6 py-10">
         <Breadcrumb items={[{ label: 'Panelim' }]} />
         <header className="mb-8 flex items-center justify-between">
-          <h1 className="font-heading text-3xl text-primary">Etkinliklerim</h1>
+          <h1 className="font-heading text-4xl font-bold tracking-tight text-primary">Etkinliklerim</h1>
           <CreateEventDialog onCreated={handleCreated} />
         </header>
 
@@ -121,8 +122,9 @@ export function DashboardPage() {
                 <motion.div
                   key={event.id}
                   initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: index * 0.05, ease: 'easeOut' }}
+                  animate={{ opacity: 1, y: 0, transition: { duration: 0.35, delay: index * 0.05, ease: 'easeOut' } }}
+                  whileHover={{ scale: 1.015, transition: { type: 'spring', stiffness: 400, damping: 17 } }}
+                  whileTap={{ scale: 0.985, transition: { type: 'spring', stiffness: 400, damping: 17 } }}
                 >
                   <Link to={`/dashboard/e/${event.id}`}>
                     <Card className="overflow-hidden [--card-spacing:0px] transition-shadow hover:shadow-md">
@@ -154,6 +156,6 @@ export function DashboardPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageTransition>
   )
 }

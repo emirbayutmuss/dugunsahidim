@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { EventGallery } from '@/components/EventGallery'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { PageTransition } from '@/components/PageTransition'
+import { Pressable } from '@/components/Pressable'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
 
 function formatEventDate(eventDate: string | null): string {
@@ -83,7 +85,7 @@ export function EventDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-6 py-10">
         <Breadcrumb
@@ -101,7 +103,7 @@ export function EventDetailPage() {
         >
           <Card>
             <CardHeader className="text-center">
-              <h1 className="font-heading text-3xl text-primary">{event.name}</h1>
+              <h1 className="font-heading text-4xl font-bold tracking-tight text-primary">{event.name}</h1>
               <p className="text-sm text-muted-foreground">{formatEventDate(event.event_date)}</p>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-6">
@@ -111,7 +113,9 @@ export function EventDetailPage() {
 
               <p className="break-all text-center text-sm text-muted-foreground">{guestUrl}</p>
 
-              <Button onClick={handleDownload}>QR Kodu İndir (PNG)</Button>
+              <Pressable>
+                <Button onClick={handleDownload}>QR Kodu İndir (PNG)</Button>
+              </Pressable>
             </CardContent>
           </Card>
 
@@ -125,6 +129,6 @@ export function EventDetailPage() {
           </Card>
         </motion.div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

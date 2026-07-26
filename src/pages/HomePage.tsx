@@ -25,7 +25,7 @@ const TRUST_CHIPS = [
   { icon: QrCode, label: 'Anında Paylaşım' },
 ]
 
-const HERO_TITLE = 'Düğününüzün Her Anı, Tek Bir Yerde Toplansın'
+const HERO_TITLE = 'O Günü, Sizin Görmediğiniz Gözlerden de Yaşayın'
 const HERO_TITLE_START = 0.2
 const HERO_WORD_DELAY = 0.18
 const HERO_WORD_DURATION = 0.7
@@ -152,8 +152,9 @@ export function HomePage() {
             transition={{ duration: 0.5, delay: subheadingDelay }}
             className="mx-auto mt-7 max-w-xl text-base text-muted-foreground sm:text-lg"
           >
-            Misafirleriniz uygulama indirmeden, giriş yapmadan, sadece QR kodu okutarak
-            fotoğraf ve video paylaşsın. Siz de tüm anıları tek bir galeride toplayın.
+            Misafirleriniz düğününüzde onlarca an yakalıyor — ama çoğu size hiç ulaşmıyor.
+            Artık tek tek rica etmenize gerek yok; QR kodu okutan herkesin çektiği fotoğraf
+            ve videolar otomatik olarak sizde toplansın.
           </motion.p>
 
           <motion.div

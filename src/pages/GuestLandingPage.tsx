@@ -85,7 +85,7 @@ export function GuestLandingPage() {
                   <Heart className="size-3.5 fill-accent text-accent" />
                 </motion.div>
 
-                <h1 className="font-heading text-5xl leading-[1.05] font-bold tracking-tight text-primary">
+                <h1 className="font-heading text-4xl leading-[1.1] font-bold tracking-tight break-words text-primary sm:text-5xl">
                   <TextReveal text={event.name} delayStart={0.15} />
                 </h1>
 

@@ -137,7 +137,7 @@ export function HomePage() {
             Düğün & Etkinlik Anı Toplama
           </motion.p>
 
-          <h1 className="mt-6 font-heading text-6xl leading-[1.02] font-bold tracking-tighter text-primary sm:text-7xl md:text-8xl">
+          <h1 className="mt-6 font-heading text-5xl leading-[1.05] font-bold tracking-tighter break-words text-primary sm:text-7xl md:text-8xl">
             <TextReveal
               text={HERO_TITLE}
               delayStart={HERO_TITLE_START}

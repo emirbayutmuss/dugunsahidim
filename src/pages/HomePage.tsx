@@ -299,35 +299,6 @@ export function HomePage() {
       </section>
 
       <section className="px-6 py-16">
-        <FadeInSection className="mx-auto max-w-2xl">
-          <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card px-8 py-10 text-center shadow-sm sm:px-12 sm:py-12">
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -top-6 left-6 font-heading text-9xl text-accent/25 select-none"
-            >
-              &rdquo;
-            </span>
-            <p className="relative z-10 text-xs font-medium tracking-widest text-accent-foreground uppercase">
-              Hikayemiz
-            </p>
-            <h2 className="relative z-10 mt-3 font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Nereden Çıktı Bu Fikir?
-            </h2>
-            <blockquote className="relative z-10 mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Bu fikir aslında sevgilim Eda'nın aklına geldi — bir düğünde, herkesin çektiği
-              güzel anların telefonlarda, WhatsApp gruplarında kaybolup gittiğini fark
-              etmişti. 'Keşke hepsi tek bir yerde toplansa' demişti. Ben de, bu fikri
-              gerçeğe dönüştürmeye karar verdim. Düğün Şahidim, işte böyle, küçük ama
-              içten bir fikirle başladı.
-            </blockquote>
-            <p className="relative z-10 mt-5 text-right font-heading text-lg text-primary italic">
-              — Emir
-            </p>
-          </div>
-        </FadeInSection>
-      </section>
-
-      <section className="px-6 py-16">
         <FadeInSection className="mx-auto max-w-xl text-center">
           <p className="text-xs font-medium tracking-widest text-accent-foreground uppercase">
             Yakında

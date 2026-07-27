@@ -6,11 +6,13 @@ import { uploadGuestMedia, validateFileClientSide } from '@/lib/upload'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { VoiceRecorderField } from '@/components/VoiceRecorderField'
 
 const ACCEPTED_MIME_TYPES =
   'image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm'
 
 type UploadStatus = 'idle' | 'uploading' | 'success'
+type UploadMode = 'media' | 'audio'
 
 interface GuestUploadFormProps {
   slug: string
@@ -22,13 +24,23 @@ function formatFileSize(bytes: number): string {
 }
 
 export function GuestUploadForm({ slug }: GuestUploadFormProps) {
+  const [mode, setMode] = useState<UploadMode>('media')
   const [guestName, setGuestName] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [audioFile, setAudioFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [hasConsented, setHasConsented] = useState(false)
   const [status, setStatus] = useState<UploadStatus>('idle')
   const [isDragActive, setIsDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const activeFile = mode === 'media' ? file : audioFile
+
+  function switchMode(nextMode: UploadMode) {
+    if (nextMode === mode || status === 'uploading') return
+    setMode(nextMode)
+    clearFile()
+    setAudioFile(null)
+  }
 
   function selectFile(candidate: File | undefined) {
     if (!candidate) return
@@ -63,13 +75,14 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
   }
 
   async function handleSubmit() {
-    if (!file || !hasConsented) return
+    if (!activeFile || !hasConsented) return
 
     setStatus('uploading')
     try {
-      await uploadGuestMedia(slug, file, guestName.trim() || null)
+      await uploadGuestMedia(slug, activeFile, guestName.trim() || null)
       setStatus('success')
       clearFile()
+      setAudioFile(null)
       setGuestName('')
       setHasConsented(false)
     } catch (error: unknown) {
@@ -131,6 +144,29 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
+        <button
+          type="button"
+          onClick={() => switchMode('media')}
+          disabled={status === 'uploading'}
+          className={`rounded-lg py-2 text-sm font-medium transition-colors ${
+            mode === 'media' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+          }`}
+        >
+          Fotoğraf/Video
+        </button>
+        <button
+          type="button"
+          onClick={() => switchMode('audio')}
+          disabled={status === 'uploading'}
+          className={`rounded-lg py-2 text-sm font-medium transition-colors ${
+            mode === 'audio' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+          }`}
+        >
+          Sesli Mesaj
+        </button>
+      </div>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -140,6 +176,9 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
         disabled={status === 'uploading'}
       />
 
+      {mode === 'audio' ? (
+        <VoiceRecorderField onRecordingChange={setAudioFile} disabled={status === 'uploading'} />
+      ) : (
       <AnimatePresence mode="wait">
         {!file ? (
           <motion.div
@@ -197,6 +236,7 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
 
       <label className="flex items-start gap-2 text-xs text-muted-foreground">
         <input
@@ -207,8 +247,8 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
           className="mt-0.5 size-4 shrink-0 accent-primary"
         />
         <span>
-          Yüklediğim fotoğraf/videonun etkinlik sahibi tarafından görüntülenmesine ve indirilmesine
-          izin veriyorum. (KVKK kapsamında kişisel veri işleme onayı)
+          Yüklediğim fotoğraf/video/ses kaydının etkinlik sahibi tarafından görüntülenmesine ve
+          indirilmesine izin veriyorum. (KVKK kapsamında kişisel veri işleme onayı)
         </span>
       </label>
 
@@ -223,12 +263,12 @@ export function GuestUploadForm({ slug }: GuestUploadFormProps) {
       )}
 
       <motion.div
-        whileHover={file && hasConsented && status !== 'uploading' ? { scale: 1.02 } : undefined}
-        whileTap={file && hasConsented && status !== 'uploading' ? { scale: 0.98 } : undefined}
+        whileHover={activeFile && hasConsented && status !== 'uploading' ? { scale: 1.02 } : undefined}
+        whileTap={activeFile && hasConsented && status !== 'uploading' ? { scale: 0.98 } : undefined}
       >
         <Button
           className="w-full"
-          disabled={!file || !hasConsented || status === 'uploading'}
+          disabled={!activeFile || !hasConsented || status === 'uploading'}
           onClick={handleSubmit}
         >
           {status === 'uploading' ? (

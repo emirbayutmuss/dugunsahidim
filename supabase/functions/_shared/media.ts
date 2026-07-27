@@ -1,4 +1,4 @@
-export type MediaFamily = 'image' | 'video'
+export type MediaFamily = 'image' | 'video' | 'audio'
 
 interface MediaTypeConfig {
   family: MediaFamily
@@ -8,6 +8,7 @@ interface MediaTypeConfig {
 
 const IMAGE_MAX_BYTES = 15 * 1024 * 1024
 const VIDEO_MAX_BYTES = 100 * 1024 * 1024
+const AUDIO_MAX_BYTES = 5 * 1024 * 1024
 
 export const ALLOWED_MIME_TYPES: Record<string, MediaTypeConfig> = {
   'image/jpeg': { family: 'image', extension: 'jpg', maxBytes: IMAGE_MAX_BYTES },
@@ -18,6 +19,8 @@ export const ALLOWED_MIME_TYPES: Record<string, MediaTypeConfig> = {
   'video/mp4': { family: 'video', extension: 'mp4', maxBytes: VIDEO_MAX_BYTES },
   'video/quicktime': { family: 'video', extension: 'mov', maxBytes: VIDEO_MAX_BYTES },
   'video/webm': { family: 'video', extension: 'webm', maxBytes: VIDEO_MAX_BYTES },
+  'audio/webm': { family: 'audio', extension: 'webm', maxBytes: AUDIO_MAX_BYTES },
+  'audio/mp4': { family: 'audio', extension: 'm4a', maxBytes: AUDIO_MAX_BYTES },
 }
 
 type SignatureFamily = 'jpeg' | 'png' | 'webp' | 'ftyp' | 'webm'
@@ -31,6 +34,8 @@ const MIME_SIGNATURE_FAMILY: Record<string, SignatureFamily> = {
   'video/mp4': 'ftyp',
   'video/quicktime': 'ftyp',
   'video/webm': 'webm',
+  'audio/webm': 'webm',
+  'audio/mp4': 'ftyp',
 }
 
 /**

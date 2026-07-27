@@ -1,5 +1,5 @@
 export type EventStatus = 'active' | 'paused' | 'closed'
-export type MediaFamily = 'image' | 'video'
+export type MediaFamily = 'image' | 'video' | 'audio'
 // status = teknik yükleme durumu, moderation_status = içerik onay durumu — ayrı kavramlar
 export type ModerationStatus = 'pending' | 'approved' | 'rejected'
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CheckCircle2, Download, ImageOff, Loader2, PlayCircle, X, XCircle } from 'lucide-react'
+import { CheckCircle2, Download, ImageOff, Loader2, Mic, PlayCircle, X, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   createSignedDownloadUrl,
@@ -29,6 +29,20 @@ const MODERATION_BADGE: Record<'pending' | 'rejected', { label: string; classNam
   rejected: { label: 'Reddedildi', className: 'bg-destructive text-white' },
 }
 
+type TypeFilter = 'all' | 'media' | 'audio'
+
+const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
+  { value: 'all', label: 'Tümü' },
+  { value: 'media', label: 'Foto & Video' },
+  { value: 'audio', label: 'Sesli Mesajlar' },
+]
+
+function matchesTypeFilter(upload: UploadRow, filter: TypeFilter): boolean {
+  if (filter === 'all') return true
+  if (filter === 'audio') return upload.file_type === 'audio'
+  return upload.file_type === 'image' || upload.file_type === 'video'
+}
+
 export function EventGallery({ eventId, eventName }: EventGalleryProps) {
   const [uploads, setUploads] = useState<UploadRow[]>([])
   const [urlMap, setUrlMap] = useState<Record<string, string>>({})
@@ -36,6 +50,7 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
   const [selected, setSelected] = useState<UploadRow | null>(null)
   const [isZipping, setIsZipping] = useState(false)
   const [moderatingId, setModeratingId] = useState<string | null>(null)
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
 
   useEffect(() => {
     let cancelled = false
@@ -128,6 +143,7 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
   }
 
   const pendingCount = uploads.filter((upload) => upload.moderation_status === 'pending').length
+  const filteredUploads = uploads.filter((upload) => matchesTypeFilter(upload, typeFilter))
 
   return (
     <div className="space-y-4">
@@ -155,8 +171,28 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
         </Pressable>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {TYPE_FILTERS.map((filter) => (
+          <button
+            key={filter.value}
+            type="button"
+            onClick={() => setTypeFilter(filter.value)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              typeFilter === filter.value
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-muted/70'
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
+      {filteredUploads.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Bu filtrede henüz bir şey yok.</p>
+      ) : (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {uploads.map((upload, index) => {
+        {filteredUploads.map((upload, index) => {
           const url = urlMap[upload.file_path]
           return (
             <motion.button
@@ -184,6 +220,11 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
                   <PlayCircle className="size-8" />
                   <span className="text-xs">Video</span>
                 </div>
+              ) : upload.file_type === 'audio' ? (
+                <div className="flex size-full flex-col items-center justify-center gap-1 text-muted-foreground">
+                  <Mic className="size-8" />
+                  <span className="text-xs">Sesli Mesaj</span>
+                </div>
               ) : (
                 <div className="flex size-full items-center justify-center text-muted-foreground">
                   <ImageOff className="size-6" />
@@ -193,6 +234,7 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
           )
         })}
       </div>
+      )}
 
       <AnimatePresence>
         {selected && (
@@ -226,6 +268,11 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
                   alt=""
                   className="max-h-[75vh] w-full object-contain"
                 />
+              ) : selected.file_type === 'audio' ? (
+                <div className="flex flex-col items-center gap-3 p-8">
+                  <Mic className="size-10 text-muted-foreground" />
+                  <audio src={urlMap[selected.file_path]} controls autoPlay className="w-full" />
+                </div>
               ) : (
                 <video
                   src={urlMap[selected.file_path]}

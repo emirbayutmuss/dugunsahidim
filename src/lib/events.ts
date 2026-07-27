@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
-import { generateEventSlug } from '@/lib/slug'
+import { generateEventSlug, generateLiveWallToken } from '@/lib/slug'
 import type { EventRow } from '@/lib/types'
 
 const UNIQUE_VIOLATION = '23505'
@@ -92,4 +92,43 @@ export async function createEvent(ownerId: string, name: string, eventDate: stri
   }
 
   throw new Error('Etkinlik oluşturulamadı, lütfen tekrar deneyin')
+}
+
+export async function setLiveWallEnabled(
+  eventId: string,
+  enabled: boolean,
+  currentToken: string | null,
+): Promise<EventRow> {
+  const updates =
+    enabled && !currentToken
+      ? { live_wall_enabled: true, live_wall_token: generateLiveWallToken() }
+      : { live_wall_enabled: enabled }
+
+  const { data, error } = await supabase
+    .from('events')
+    .update(updates)
+    .eq('id', eventId)
+    .select()
+    .single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
+export async function regenerateLiveWallToken(eventId: string): Promise<EventRow> {
+  const { data, error } = await supabase
+    .from('events')
+    .update({ live_wall_token: generateLiveWallToken() })
+    .eq('id', eventId)
+    .select()
+    .single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
 }

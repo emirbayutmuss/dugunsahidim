@@ -9,6 +9,7 @@ import { ContactPage } from '@/pages/ContactPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { EventDetailPage } from '@/pages/EventDetailPage'
 import { GuestLandingPage } from '@/pages/GuestLandingPage'
+import { LiveWallPage } from '@/pages/LiveWallPage'
 
 function App() {
   const location = useLocation()
@@ -22,6 +23,7 @@ function App() {
         <Route path="/sss" element={<FaqPage />} />
         <Route path="/iletisim" element={<ContactPage />} />
         <Route path="/e/:slug" element={<GuestLandingPage />} />
+        <Route path="/duvar/:token" element={<LiveWallPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/dashboard/e/:eventId" element={<EventDetailPage />} />

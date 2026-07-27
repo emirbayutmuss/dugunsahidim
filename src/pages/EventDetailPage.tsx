@@ -3,11 +3,19 @@ import { Navigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { QRCodeCanvas } from 'qrcode.react'
-import { fetchEventById } from '@/lib/events'
+import { Copy, RefreshCw } from 'lucide-react'
+import { fetchEventById, regenerateLiveWallToken, setLiveWallEnabled } from '@/lib/events'
 import { fetchEventAnalytics, type EventAnalytics } from '@/lib/analytics'
 import type { EventRow } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { EventGallery } from '@/components/EventGallery'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Breadcrumb } from '@/components/Breadcrumb'
@@ -30,6 +38,9 @@ export function EventDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [analytics, setAnalytics] = useState<EventAnalytics | null>(null)
+  const [isTogglingWall, setIsTogglingWall] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
+  const [isRegenerateDialogOpen, setIsRegenerateDialogOpen] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useDocumentMeta({
@@ -85,6 +96,9 @@ export function EventDetailPage() {
   }
 
   const guestUrl = `${window.location.origin}/e/${event.slug}`
+  const wallUrl = event.live_wall_token
+    ? `${window.location.origin}/duvar/${event.live_wall_token}`
+    : null
   const conversionRate =
     analytics && analytics.viewCount > 0
       ? Math.round((analytics.conversionCount / analytics.viewCount) * 100)
@@ -98,6 +112,46 @@ export function EventDetailPage() {
     link.download = `${event!.slug}-qr.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
+  }
+
+  async function handleToggleLiveWall(enabled: boolean) {
+    if (!event) return
+    setIsTogglingWall(true)
+    try {
+      const updated = await setLiveWallEnabled(event.id, enabled, event.live_wall_token)
+      setEvent(updated)
+      toast.success(enabled ? 'Canlı duvar etkinleştirildi' : 'Canlı duvar kapatıldı')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'İşlem başarısız oldu'
+      toast.error(message)
+    } finally {
+      setIsTogglingWall(false)
+    }
+  }
+
+  async function handleRegenerateToken() {
+    if (!event) return
+    setIsRegenerating(true)
+    try {
+      const updated = await regenerateLiveWallToken(event.id)
+      setEvent(updated)
+      setIsRegenerateDialogOpen(false)
+      toast.success('Link yenilendi, eski link artık çalışmıyor')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'İşlem başarısız oldu'
+      toast.error(message)
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
+  async function handleCopyWallLink(wallUrl: string) {
+    try {
+      await navigator.clipboard.writeText(wallUrl)
+      toast.success('Link kopyalandı')
+    } catch {
+      toast.error('Link kopyalanamadı')
+    }
   }
 
   return (
@@ -132,6 +186,52 @@ export function EventDetailPage() {
               <Pressable>
                 <Button onClick={handleDownload}>QR Kodu İndir (PNG)</Button>
               </Pressable>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <h2 className="font-heading text-xl text-foreground">Canlı Duvar</h2>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!event.live_wall_enabled ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Mekandaki bir TV/projeksiyona bağlayabileceğiniz özel bir link oluşturun —
+                    misafirlerin yüklediği onaylı fotoğraflar otomatik slayt olarak akar.
+                  </p>
+                  <Pressable>
+                    <Button onClick={() => handleToggleLiveWall(true)} disabled={isTogglingWall}>
+                      {isTogglingWall ? 'Etkinleştiriliyor…' : 'Canlı Duvarı Etkinleştir'}
+                    </Button>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <p className="break-all text-sm text-muted-foreground">{wallUrl}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Pressable>
+                      <Button variant="outline" onClick={() => handleCopyWallLink(wallUrl!)}>
+                        <Copy className="size-4" /> Linki Kopyala
+                      </Button>
+                    </Pressable>
+                    <Pressable>
+                      <Button variant="outline" onClick={() => setIsRegenerateDialogOpen(true)}>
+                        <RefreshCw className="size-4" /> Linki Yenile
+                      </Button>
+                    </Pressable>
+                    <Pressable>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleToggleLiveWall(false)}
+                        disabled={isTogglingWall}
+                      >
+                        {isTogglingWall ? 'Kapatılıyor…' : 'Kapat'}
+                      </Button>
+                    </Pressable>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -177,6 +277,26 @@ export function EventDetailPage() {
           </Card>
         </motion.div>
       </div>
+
+      <Dialog open={isRegenerateDialogOpen} onOpenChange={setIsRegenerateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Linki yenile?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Yeni bir link oluşturulur ve eski link anında geçersiz olur. Mekandaki ekranda eski
+            linki kullanıyorsanız, ekranı yeni linkle güncellemeniz gerekir.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRegenerateDialogOpen(false)}>
+              Vazgeç
+            </Button>
+            <Button onClick={handleRegenerateToken} disabled={isRegenerating}>
+              {isRegenerating ? 'Yenileniyor…' : 'Evet, Yenile'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageTransition>
   )
 }

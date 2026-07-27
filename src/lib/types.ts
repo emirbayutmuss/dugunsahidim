@@ -12,6 +12,8 @@ export interface EventRow {
   status: EventStatus
   max_uploads: number
   max_storage_bytes: number
+  live_wall_enabled: boolean
+  live_wall_token: string | null
   created_at: string
 }
 

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, ImageOff, Loader2, PlayCircle, X } from 'lucide-react'
+import { CheckCircle2, Download, ImageOff, Loader2, PlayCircle, X, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   createSignedDownloadUrl,
   createSignedUrlMap,
   downloadEventZip,
   fetchReadyUploads,
+  setUploadModerationStatus,
 } from '@/lib/gallery'
 import type { UploadRow } from '@/lib/types'
 import { Button } from '@/components/ui/button'
@@ -23,12 +24,18 @@ function sanitizeFileNamePart(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60)
 }
 
+const MODERATION_BADGE: Record<'pending' | 'rejected', { label: string; className: string }> = {
+  pending: { label: 'Onay Bekliyor', className: 'bg-amber-500 text-white' },
+  rejected: { label: 'Reddedildi', className: 'bg-destructive text-white' },
+}
+
 export function EventGallery({ eventId, eventName }: EventGalleryProps) {
   const [uploads, setUploads] = useState<UploadRow[]>([])
   const [urlMap, setUrlMap] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [selected, setSelected] = useState<UploadRow | null>(null)
   const [isZipping, setIsZipping] = useState(false)
+  const [moderatingId, setModeratingId] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -79,6 +86,35 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
     }
   }
 
+  async function handleModeration(upload: UploadRow, status: 'approved' | 'rejected') {
+    const previousStatus = upload.moderation_status
+    setModeratingId(upload.id)
+    setUploads((rows) =>
+      rows.map((row) => (row.id === upload.id ? { ...row, moderation_status: status } : row)),
+    )
+    setSelected((current) =>
+      current && current.id === upload.id ? { ...current, moderation_status: status } : current,
+    )
+
+    try {
+      await setUploadModerationStatus(upload.id, status)
+      toast.success(status === 'approved' ? 'Onaylandı' : 'Reddedildi')
+    } catch (error: unknown) {
+      setUploads((rows) =>
+        rows.map((row) =>
+          row.id === upload.id ? { ...row, moderation_status: previousStatus } : row,
+        ),
+      )
+      setSelected((current) =>
+        current && current.id === upload.id ? { ...current, moderation_status: previousStatus } : current,
+      )
+      const message = error instanceof Error ? error.message : 'İşlem başarısız oldu'
+      toast.error(message)
+    } finally {
+      setModeratingId(null)
+    }
+  }
+
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Galeri yükleniyor…</p>
   }
@@ -91,10 +127,19 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
     )
   }
 
+  const pendingCount = uploads.filter((upload) => upload.moderation_status === 'pending').length
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{uploads.length} anı</p>
+        <p className="text-sm text-muted-foreground">
+          {uploads.length} anı
+          {pendingCount > 0 && (
+            <span className="ml-2 inline-flex items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-600">
+              {pendingCount} onay bekliyor
+            </span>
+          )}
+        </p>
         <Pressable>
           <Button variant="outline" onClick={handleZipDownload} disabled={isZipping}>
             {isZipping ? (
@@ -125,6 +170,13 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
               whileTap={{ scale: 0.97 }}
               className="relative aspect-square overflow-hidden rounded-lg bg-muted shadow-sm"
             >
+              {upload.moderation_status !== 'approved' && (
+                <span
+                  className={`absolute top-1.5 left-1.5 z-10 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${MODERATION_BADGE[upload.moderation_status].className}`}
+                >
+                  {MODERATION_BADGE[upload.moderation_status].label}
+                </span>
+              )}
               {upload.file_type === 'image' && url ? (
                 <img src={url} alt="" className="size-full object-cover" />
               ) : upload.file_type === 'video' ? (
@@ -183,17 +235,39 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
                 />
               )}
 
-              <div className="flex items-center justify-between p-3">
-                <p className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between gap-3 p-3">
+                <p className="min-w-0 truncate text-sm text-muted-foreground">
                   {selected.guest_name ?? 'İsimsiz misafir'}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => handleSingleDownload(selected)}
-                  className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                >
-                  <Download className="size-4" /> İndir
-                </button>
+                <div className="flex shrink-0 items-center gap-3">
+                  {selected.moderation_status !== 'approved' && (
+                    <button
+                      type="button"
+                      disabled={moderatingId === selected.id}
+                      onClick={() => handleModeration(selected, 'approved')}
+                      className="inline-flex items-center gap-1.5 text-sm text-emerald-600 hover:underline disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="size-4" /> Onayla
+                    </button>
+                  )}
+                  {selected.moderation_status !== 'rejected' && (
+                    <button
+                      type="button"
+                      disabled={moderatingId === selected.id}
+                      onClick={() => handleModeration(selected, 'rejected')}
+                      className="inline-flex items-center gap-1.5 text-sm text-destructive hover:underline disabled:opacity-50"
+                    >
+                      <XCircle className="size-4" /> Reddet
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleSingleDownload(selected)}
+                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  >
+                    <Download className="size-4" /> İndir
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

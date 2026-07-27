@@ -1,5 +1,7 @@
 export type EventStatus = 'active' | 'paused' | 'closed'
 export type MediaFamily = 'image' | 'video'
+// status = teknik yükleme durumu, moderation_status = içerik onay durumu — ayrı kavramlar
+export type ModerationStatus = 'pending' | 'approved' | 'rejected'
 
 export interface EventRow {
   id: string
@@ -21,5 +23,6 @@ export interface UploadRow {
   file_type: MediaFamily
   mime_type: string
   verified_file_size: number | null
+  moderation_status: ModerationStatus
   created_at: string
 }

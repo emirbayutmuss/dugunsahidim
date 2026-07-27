@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
-import type { UploadRow } from '@/lib/types'
+import type { ModerationStatus, UploadRow } from '@/lib/types'
 
 const BUCKET = 'event-media'
 const SIGNED_URL_TTL_SECONDS = 300
@@ -7,7 +7,9 @@ const SIGNED_URL_TTL_SECONDS = 300
 export async function fetchReadyUploads(eventId: string): Promise<UploadRow[]> {
   const { data, error } = await supabase
     .from('uploads')
-    .select('id, event_id, guest_name, file_path, file_type, mime_type, verified_file_size, created_at')
+    .select(
+      'id, event_id, guest_name, file_path, file_type, mime_type, verified_file_size, moderation_status, created_at',
+    )
     .eq('event_id', eventId)
     .eq('status', 'ready')
     .order('created_at', { ascending: false })
@@ -17,6 +19,20 @@ export async function fetchReadyUploads(eventId: string): Promise<UploadRow[]> {
   }
 
   return data
+}
+
+export async function setUploadModerationStatus(
+  uploadId: string,
+  status: Extract<ModerationStatus, 'approved' | 'rejected'>,
+): Promise<void> {
+  const { error } = await supabase.rpc('set_upload_moderation_status', {
+    p_upload_id: uploadId,
+    p_status: status,
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
 }
 
 export async function createSignedUrlMap(paths: string[]): Promise<Record<string, string>> {

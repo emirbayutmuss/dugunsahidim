@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import {
   Camera,
+  Cast,
+  Mic,
   QrCode,
   ShieldCheck,
   Sparkles as SparklesIcon,
@@ -15,6 +17,7 @@ import { AuroraBackground } from '@/components/AuroraBackground'
 import { Sparkles } from '@/components/Sparkles'
 import { TextReveal, getTextRevealDuration } from '@/components/TextReveal'
 import { SiteHeader } from '@/components/SiteHeader'
+import { Footer } from '@/components/Footer'
 import { PageTransition } from '@/components/PageTransition'
 import { Pressable } from '@/components/Pressable'
 import { useDocumentMeta } from '@/hooks/useDocumentMeta'
@@ -78,6 +81,18 @@ const FEATURES = [
     icon: SparklesIcon,
     title: 'Kolay Kullanım',
     description: 'Sen ve misafirlerin için sade, zarif ve kafa karıştırmayan bir deneyim.',
+  },
+  {
+    icon: Cast,
+    title: 'Canlı Fotoğraf Duvarı',
+    description: 'Mekandaki TV veya projeksiyonda, onaylı anları gece boyunca otomatik slayt olarak akıtın.',
+    to: '/canli-fotograf-duvari',
+  },
+  {
+    icon: Mic,
+    title: 'Sesli Misafir Defteri',
+    description: 'Misafirleriniz kağıda değil, kendi sesleriyle 1 dakikalık dilek mesajı bıraksın.',
+    to: '/sesli-misafir-defteri',
   },
 ]
 
@@ -290,6 +305,14 @@ export function HomePage() {
                     <feature.icon className="size-6 text-primary" />
                     <h3 className="font-heading text-lg font-semibold text-foreground">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    {feature.to && (
+                      <Link
+                        to={feature.to}
+                        className="mt-1 text-xs font-medium text-primary hover:underline"
+                      >
+                        Daha fazla bilgi →
+                      </Link>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -313,28 +336,7 @@ export function HomePage() {
         </FadeInSection>
       </section>
 
-      <footer className="bg-deep px-6 py-12 text-background/70">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 text-center text-sm">
-          <span className="font-heading text-lg font-semibold text-background">Düğün Şahidim</span>
-          <div className="flex items-center gap-4">
-            <Link to="/sss" className="hover:text-background hover:underline">
-              SSS
-            </Link>
-            <Link to="/iletisim" className="hover:text-background hover:underline">
-              İletişim
-            </Link>
-            <Link to="/gizlilik" className="hover:text-background hover:underline">
-              Gizlilik
-            </Link>
-          </div>
-          <p>
-            Sorularınız için:{' '}
-            <a href="mailto:merhaba@dugunsahidim.com" className="hover:text-background hover:underline">
-              merhaba@dugunsahidim.com
-            </a>
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </PageTransition>
   )
 }

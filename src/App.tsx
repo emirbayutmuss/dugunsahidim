@@ -4,6 +4,10 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
 import { PrivacyPage } from '@/pages/PrivacyPage'
+import { TermsPage } from '@/pages/TermsPage'
+import { CanliFotografDuvariPage } from '@/pages/CanliFotografDuvariPage'
+import { SesliMisafirDefteriPage } from '@/pages/SesliMisafirDefteriPage'
+import { CorporatePage } from '@/pages/CorporatePage'
 import { FaqPage } from '@/pages/FaqPage'
 import { ContactPage } from '@/pages/ContactPage'
 import { DashboardPage } from '@/pages/DashboardPage'
@@ -21,6 +25,10 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/gizlilik" element={<PrivacyPage />} />
+        <Route path="/kullanim-kosullari" element={<TermsPage />} />
+        <Route path="/canli-fotograf-duvari" element={<CanliFotografDuvariPage />} />
+        <Route path="/sesli-misafir-defteri" element={<SesliMisafirDefteriPage />} />
+        <Route path="/kurumsal" element={<CorporatePage />} />
         <Route path="/sss" element={<FaqPage />} />
         <Route path="/iletisim" element={<ContactPage />} />
         <Route path="/e/:slug" element={<GuestLandingPage />} />

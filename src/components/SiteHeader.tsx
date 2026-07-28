@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { Button, buttonVariants } from '@/components/ui/button'
 
 const NAV_LINKS = [
+  { to: '/kurumsal', label: 'Kurumsal' },
   { to: '/sss', label: 'SSS' },
   { to: '/iletisim', label: 'İletişim' },
 ]

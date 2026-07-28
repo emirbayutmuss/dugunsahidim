@@ -10,6 +10,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { EventDetailPage } from '@/pages/EventDetailPage'
 import { GuestLandingPage } from '@/pages/GuestLandingPage'
 import { LiveWallPage } from '@/pages/LiveWallPage'
+import { GalleryDownloadPage } from '@/pages/GalleryDownloadPage'
 
 function App() {
   const location = useLocation()
@@ -24,6 +25,7 @@ function App() {
         <Route path="/iletisim" element={<ContactPage />} />
         <Route path="/e/:slug" element={<GuestLandingPage />} />
         <Route path="/duvar/:token" element={<LiveWallPage />} />
+        <Route path="/indir/:token" element={<GalleryDownloadPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/dashboard/e/:eventId" element={<EventDetailPage />} />

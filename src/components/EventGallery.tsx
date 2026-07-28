@@ -1,12 +1,24 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CheckCircle2, Download, ImageOff, Loader2, Mic, PlayCircle, X, XCircle } from 'lucide-react'
+import {
+  CheckCircle2,
+  Download,
+  ImageOff,
+  Loader2,
+  Mail,
+  Mic,
+  PlayCircle,
+  X,
+  XCircle,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import {
   createSignedDownloadUrl,
   createSignedUrlMap,
   downloadEventZip,
   fetchReadyUploads,
+  GalleryDownloadRateLimitedError,
+  sendGalleryDownloadEmail,
   setUploadModerationStatus,
 } from '@/lib/gallery'
 import type { UploadRow } from '@/lib/types'
@@ -27,6 +39,15 @@ function sanitizeFileNamePart(value: string): string {
 const MODERATION_BADGE: Record<'pending' | 'rejected', { label: string; className: string }> = {
   pending: { label: 'Onay Bekliyor', className: 'bg-amber-500 text-white' },
   rejected: { label: 'Reddedildi', className: 'bg-destructive text-white' },
+}
+
+const EMAIL_COOLDOWN_MS = 2 * 60 * 1000
+
+function formatCooldown(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
 
 type TypeFilter = 'all' | 'media' | 'audio'
@@ -51,6 +72,9 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
   const [isZipping, setIsZipping] = useState(false)
   const [moderatingId, setModeratingId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailCooldownEndsAt, setEmailCooldownEndsAt] = useState<number | null>(null)
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     let cancelled = false
@@ -77,6 +101,41 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
       cancelled = true
     }
   }, [eventId])
+
+  useEffect(() => {
+    if (!emailCooldownEndsAt) return
+
+    const interval = setInterval(() => {
+      const currentTime = Date.now()
+      setNow(currentTime)
+      if (currentTime >= emailCooldownEndsAt) {
+        setEmailCooldownEndsAt(null)
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [emailCooldownEndsAt])
+
+  async function handleSendDownloadEmail() {
+    setIsSendingEmail(true)
+    try {
+      await sendGalleryDownloadEmail(eventId)
+      toast.success('E-postana gönderildi', {
+        description: 'Bağlantı 48 saat geçerli, gelen kutunu kontrol et.',
+      })
+      setNow(Date.now())
+      setEmailCooldownEndsAt(Date.now() + EMAIL_COOLDOWN_MS)
+    } catch (error: unknown) {
+      if (error instanceof GalleryDownloadRateLimitedError) {
+        setNow(Date.now())
+        setEmailCooldownEndsAt(Date.now() + error.retryAfterMs)
+      }
+      const message = error instanceof Error ? error.message : 'E-posta gönderilemedi'
+      toast.error(message)
+    } finally {
+      setIsSendingEmail(false)
+    }
+  }
 
   async function handleZipDownload() {
     setIsZipping(true)
@@ -156,19 +215,42 @@ export function EventGallery({ eventId, eventName }: EventGalleryProps) {
             </span>
           )}
         </p>
-        <Pressable>
-          <Button variant="outline" onClick={handleZipDownload} disabled={isZipping}>
-            {isZipping ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Hazırlanıyor…
-              </>
-            ) : (
-              <>
-                <Download className="size-4" /> Tümünü İndir (ZIP)
-              </>
-            )}
-          </Button>
-        </Pressable>
+        <div className="flex flex-wrap gap-2">
+          <Pressable>
+            <Button variant="outline" onClick={handleZipDownload} disabled={isZipping}>
+              {isZipping ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Hazırlanıyor…
+                </>
+              ) : (
+                <>
+                  <Download className="size-4" /> Tümünü İndir (ZIP)
+                </>
+              )}
+            </Button>
+          </Pressable>
+          <Pressable>
+            <Button
+              variant="outline"
+              onClick={handleSendDownloadEmail}
+              disabled={isSendingEmail || emailCooldownEndsAt !== null}
+            >
+              {isSendingEmail ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Gönderiliyor…
+                </>
+              ) : emailCooldownEndsAt !== null ? (
+                <>
+                  <Mail className="size-4" /> {formatCooldown(emailCooldownEndsAt - now)} sonra tekrar
+                </>
+              ) : (
+                <>
+                  <Mail className="size-4" /> E-postama Gönder
+                </>
+              )}
+            </Button>
+          </Pressable>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">

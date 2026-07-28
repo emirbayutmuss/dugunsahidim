@@ -24,44 +24,87 @@ Deno.serve(async (req: Request) => {
   }
 
   const url = new URL(req.url)
-  const eventId = url.searchParams.get('eventId')
-  if (!eventId) {
-    return textResponse('eventId gerekli', 400)
-  }
+  const downloadToken = url.searchParams.get('token')
 
-  const authHeader = req.headers.get('Authorization')
-  if (!authHeader) {
-    return textResponse('Yetkisiz', 401)
-  }
-
-  // RLS-scoped client, acting as the calling owner — never sees another owner's event.
-  const supabaseUser = createClient(SUPABASE_URL, ANON_KEY, {
-    global: { headers: { Authorization: authHeader } },
-  })
-
-  const { data: event, error: eventError } = await supabaseUser
-    .from('events')
-    .select('id, name')
-    .eq('id', eventId)
-    .maybeSingle()
-
-  if (eventError || !event) {
-    return textResponse('Etkinlik bulunamadı', 404)
-  }
-
-  const { data: uploads, error: uploadsError } = await supabaseUser
-    .from('uploads')
-    .select('file_path, guest_name, created_at')
-    .eq('event_id', eventId)
-    .eq('status', 'ready')
-    .order('created_at', { ascending: true })
-
-  if (uploadsError || !uploads || uploads.length === 0) {
-    return textResponse('İndirilecek dosya yok', 404)
-  }
-
-  // Service-role client only for the actual file bytes — ownership already verified above.
+  // Service-role client: used directly for the token flow (the token itself is the
+  // authorization, no user session involved) and for the actual file bytes in the
+  // owner flow below (ownership already verified via the RLS-scoped client there).
   const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+
+  let event: { id: string; name: string }
+  let uploads: { file_path: string; guest_name: string | null }[]
+
+  if (downloadToken) {
+    // "E-postama Gönder" flow: an unguessable, time-limited token mailed via the
+    // existing magic-link infrastructure. No Supabase session required — this may be
+    // opened from a different device than the one that requested the link.
+    const { data: tokenEvent, error: tokenError } = await supabaseAdmin
+      .from('events')
+      .select('id, name, gallery_download_token_expires_at')
+      .eq('gallery_download_token', downloadToken)
+      .maybeSingle()
+
+    if (
+      tokenError ||
+      !tokenEvent ||
+      !tokenEvent.gallery_download_token_expires_at ||
+      new Date(tokenEvent.gallery_download_token_expires_at) < new Date()
+    ) {
+      return textResponse('Bu bağlantının süresi dolmuş veya geçersiz', 410)
+    }
+
+    event = { id: tokenEvent.id, name: tokenEvent.name }
+
+    const { data: tokenUploads, error: tokenUploadsError } = await supabaseAdmin
+      .from('uploads')
+      .select('file_path, guest_name, created_at')
+      .eq('event_id', event.id)
+      .eq('status', 'ready')
+      .order('created_at', { ascending: true })
+
+    if (tokenUploadsError || !tokenUploads || tokenUploads.length === 0) {
+      return textResponse('İndirilecek dosya yok', 404)
+    }
+    uploads = tokenUploads
+  } else {
+    const eventId = url.searchParams.get('eventId')
+    if (!eventId) {
+      return textResponse('eventId gerekli', 400)
+    }
+
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return textResponse('Yetkisiz', 401)
+    }
+
+    // RLS-scoped client, acting as the calling owner — never sees another owner's event.
+    const supabaseUser = createClient(SUPABASE_URL, ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    })
+
+    const { data: ownerEvent, error: eventError } = await supabaseUser
+      .from('events')
+      .select('id, name')
+      .eq('id', eventId)
+      .maybeSingle()
+
+    if (eventError || !ownerEvent) {
+      return textResponse('Etkinlik bulunamadı', 404)
+    }
+    event = ownerEvent
+
+    const { data: ownerUploads, error: uploadsError } = await supabaseUser
+      .from('uploads')
+      .select('file_path, guest_name, created_at')
+      .eq('event_id', eventId)
+      .eq('status', 'ready')
+      .order('created_at', { ascending: true })
+
+    if (uploadsError || !ownerUploads || ownerUploads.length === 0) {
+      return textResponse('İndirilecek dosya yok', 404)
+    }
+    uploads = ownerUploads
+  }
 
   const zipFileStream = new TransformStream()
   const zipWriter = new ZipWriter(zipFileStream.writable)

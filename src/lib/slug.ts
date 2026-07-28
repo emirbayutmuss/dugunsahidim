@@ -15,3 +15,9 @@ export function generateEventSlug(): string {
 export function generateLiveWallToken(): string {
   return nanoid()
 }
+
+// live_wall_token ile aynı gerekçe: e-postayla giden indirme linki de tahmin
+// edilemez olmalı — link ele geçerse galeriye erişim verir.
+export function generateGalleryDownloadToken(): string {
+  return nanoid()
+}

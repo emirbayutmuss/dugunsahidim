@@ -163,10 +163,22 @@ site_url = "https://dugunsahidim.com"
 additional_redirect_urls = [
   "https://dugunsahidim.com",
   "https://dugunsahidim.com/dashboard",
+  "https://dugunsahidim.com/indir/**",
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
   "http://localhost:5176",
+  # /dashboard was only allow-listed for prod — these were missing, so local
+  # login's emailRedirectTo (origin + /dashboard) silently fell back to
+  # site_url (the prod domain) instead of matching. Same for /indir/:token.
+  "http://localhost:5173/dashboard",
+  "http://localhost:5174/dashboard",
+  "http://localhost:5175/dashboard",
+  "http://localhost:5176/dashboard",
+  "http://localhost:5173/indir/**",
+  "http://localhost:5174/indir/**",
+  "http://localhost:5175/indir/**",
+  "http://localhost:5176/indir/**",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
@@ -203,7 +215,10 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+# Login and the gallery "e-postama gönder" feature both reuse this same magic-link
+# quota now, so the conservative default of 2/hour is raised to avoid one flow
+# starving the other.
+email_sent = 15
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -393,7 +408,11 @@ deno_version = 2
 # secret_key = "env(SECRET_VALUE)"
 
 [analytics]
-enabled = true
+# Disabled locally: the vector container bind-mounts the host docker socket to
+# collect container logs, which colima's socket path doesn't support (fails with
+# "operation not supported" on `supabase start`). Local-CLI-only setting — the
+# hosted project's logging is managed separately by Supabase and unaffected.
+enabled = false
 port = 54327
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
